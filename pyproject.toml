@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "long-insight"
+version = "0.1.0"
+description = "Interactive analysis and visualization platform for long-horizon agent trajectories"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.9"
+authors = [
+    {name = "Yuyao Ge"},
+]
+keywords = ["llm", "agent", "trajectory", "analysis", "visualization", "dag"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "openai>=1.0.0",
+    "anthropic>=0.30.0",
+    "tqdm>=4.60.0",
+    "matplotlib>=3.5.0",
+    "numpy>=1.20.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "ruff>=0.1.0",
+]
+
+[project.scripts]
+long-insight = "long_insight.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/YuyaoGe/Long-Insight"
+Repository = "https://github.com/YuyaoGe/Long-Insight"
+
+[tool.setuptools.packages.find]
+include = ["long_insight*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"

@@ -6,26 +6,41 @@
 
 # Long-Insight
 
-**Interactive analysis and visualization platform for long-horizon agent trajectories.**
+**Interactive analysis and visualization platform for long-context agent trajectories.**
 
-Long-Insight decomposes complex, multi-turn agent conversations into structured, hierarchical steps — then scores their quality and renders them as interactive DAG visualizations. Built for researchers studying LLM agent behavior in software engineering tasks.
+Long-Insight is designed for **ultra-long agent trajectories** — the kind produced by frontier coding agents solving real-world software engineering tasks. These trajectories routinely span **400+ turns** and exceed **1M tokens**, making manual inspection practically impossible. Long-Insight decomposes these massive trajectories into structured, hierarchical step DAGs, scores their quality, and renders them as interactive visualizations.
+
+## The Problem
+
+When LLM-based coding agents (e.g., Claude Code, Cursor, Devin) tackle complex software tasks, they generate extremely long execution trajectories:
+
+- **400+ interaction turns** per task — far beyond what a human can read through
+- **1,000,000+ tokens** of context — tool calls, code edits, test outputs, reasoning traces
+- **Complex branching behavior** — parallel exploration paths, backtracking, retries
+
+These trajectories contain rich signal about agent capabilities and failure modes, but their sheer length makes analysis intractable. Long-Insight solves this by automatically compressing and structuring the raw trajectory into an interpretable DAG.
 
 ## Overview
 
-When LLM agents tackle real-world software tasks, they produce long trajectories (50–200+ turns) that are difficult to analyze manually. Long-Insight provides three capabilities:
-
 | Module | What it does |
 |--------|-------------|
-| **Analyzer** | Decomposes trajectories into a DAG of logical steps (task understanding → exploration → implementation → testing) |
+| **Analyzer** | Decomposes long-context trajectories (400+ turns, 1M+ tokens) into a DAG of logical steps |
 | **Evaluator** | Scores trajectories on problem difficulty (0–10) and improvement potential (0–10) via two-stage LLM evaluation |
 | **Visualizer** | Generates interactive HTML visualizations with zoomable DAGs, color-coded step types, and detail panels |
 
 ```
-Input JSONL ──→ [Analyzer] ──→ Step DAG (JSON)
-                                    │
-                                    ├──→ [Visualizer] ──→ Interactive HTML
-                                    │
-Input JSONL ──→ [Evaluator] ──→ Scored JSONL + Charts
+Raw Trajectory          Structured Analysis          Interactive Output
+(400+ turns)            (Step DAG)                   (HTML / Charts)
+
+┌──────────┐     ┌─────────────────────┐     ┌──────────────────────┐
+│ JSONL    │────→│ [Analyzer]          │────→│ [Visualizer]         │
+│ 1M+ tok  │     │  Step Decomposition │     │  Zoomable DAG HTML   │
+└──────────┘     │  DAG Construction   │     └──────────────────────┘
+                 └─────────────────────┘
+┌──────────┐     ┌─────────────────────┐     ┌──────────────────────┐
+│ JSONL    │────→│ [Evaluator]         │────→│ Score Distribution   │
+│ 1M+ tok  │     │  Difficulty Scoring │     │  Charts + Reports    │
+└──────────┘     │  Quality Detection  │     └──────────────────────┘
 ```
 
 ## Quick Start
@@ -33,8 +48,8 @@ Input JSONL ──→ [Evaluator] ──→ Scored JSONL + Charts
 ### Installation
 
 ```bash
-git clone https://github.com/YuyaoGe/Long-Insight.git
-cd Long-Insight
+git clone https://github.com/YuyaoGe/Long_Insight.git
+cd Long_Insight
 pip install -e .
 ```
 
@@ -68,7 +83,7 @@ long_insight/
 │   └── client.py          # Multi-provider LLM client (OpenAI + Anthropic)
 ├── analyzer/
 │   ├── decomposer.py      # Step decomposition with DAG parent tracking
-│   ├── compressor.py      # Message compression for token efficiency
+│   ├── compressor.py      # Trajectory compression for long-context inputs
 │   └── prompts.py         # Analysis prompt templates + JSON schema
 ├── evaluator/
 │   ├── scorer.py           # Two-stage concurrent trajectory scorer
@@ -80,7 +95,7 @@ long_insight/
 
 ## Step Decomposition
 
-The analyzer classifies each turn of an agent trajectory into one of 8 step types:
+The analyzer processes each turn of a long-context agent trajectory and classifies it into one of 8 step types:
 
 | Type | Description |
 |------|-------------|
@@ -93,7 +108,16 @@ The analyzer classifies each turn of an agent trajectory into one of 8 step type
 | `documentation` | Writing docs, notes, summaries |
 | `planning` | Strategizing, making plans |
 
-Steps form a **directed acyclic graph (DAG)** — a step can depend on multiple parent steps, enabling representation of parallel work streams that later converge.
+Steps form a **directed acyclic graph (DAG)** — a step can depend on multiple parent steps, capturing the branching and merging patterns common in long trajectories (e.g., parallel file exploration → converging implementation).
+
+### Trajectory Compression
+
+Raw trajectories at the 1M-token scale cannot be fed directly to an analysis LLM. The built-in compressor:
+- Truncates verbose thinking blocks (keep head + tail)
+- Compresses tool output and observation content
+- Strips redundant metadata (signatures, etc.)
+
+This reduces token consumption by 60–80% while preserving the causal structure needed for accurate step decomposition.
 
 ## Two-Stage Evaluation
 
@@ -120,15 +144,15 @@ Detects 8 anti-patterns in agent behavior:
 
 ## Input Format
 
-Standard JSONL with one trajectory per line:
+Standard JSONL with one trajectory per line. Each trajectory typically contains 400+ turns and 1M+ tokens:
 
 ```json
 {
   "instance_id": "repo__issue-123",
   "problem_statement": "Fix the login validation...",
   "resolved": true,
-  "rounds": 45,
-  "tokens": 12000,
+  "rounds": 450,
+  "tokens": 1200000,
   "messages": [
     {"role": "user", "content": "..."},
     {"role": "assistant", "content": "..."}
@@ -140,7 +164,7 @@ Standard JSONL with one trajectory per line:
 
 ```bash
 # Step decomposition
-long-insight analyze <input.jsonl> [-o output.json] [--max-turns 100]
+long-insight analyze <input.jsonl> [-o output.json] [--max-turns 500]
 
 # Quality evaluation
 long-insight evaluate <input.jsonl> [-o output.jsonl] [--sample 50] [--chart]
@@ -149,7 +173,7 @@ long-insight evaluate <input.jsonl> [-o output.jsonl] [--sample 50] [--chart]
 long-insight visualize <steps.json> [-o output.html] [--title "My Analysis"]
 
 # Full pipeline
-long-insight pipeline <input.jsonl> [--output-dir output/] [--max-turns 100]
+long-insight pipeline <input.jsonl> [--output-dir output/] [--max-turns 500]
 
 # Global options
 --provider openai|anthropic    # LLM provider
@@ -171,7 +195,7 @@ All settings can be configured via environment variables:
 | `LLM_TEMPERATURE` | `0.7` | Sampling temperature |
 | `LLM_MAX_TOKENS` | `4096` | Max output tokens |
 | `DEFAULT_CONCURRENCY` | `32` | Thread pool size for evaluation |
-| `MAX_TURNS_TO_ANALYZE` | `100` | Default max turns for analysis |
+| `MAX_TURNS_TO_ANALYZE` | `500` | Default max turns for analysis |
 | `DEBUG` | `false` | Enable debug logging |
 
 ## License

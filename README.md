@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/logo.webp" alt="Long-Insight logo" width="360" />
+  <a href="https://geyuyao.com/long-insight/"><img src="assets/logo.webp" alt="Long-Insight logo" width="100%" /></a>
 
   **Interactive analysis and visualization platform for long-context agent trajectories.**
 

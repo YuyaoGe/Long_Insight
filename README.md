@@ -1,12 +1,13 @@
-<p align="center">
-  <img src="https://img.shields.io/badge/python-3.9+-blue.svg" alt="Python 3.9+">
-  <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="MIT License">
-  <img src="https://img.shields.io/badge/LLM-OpenAI%20%7C%20Anthropic-orange.svg" alt="LLM Support">
-</p>
+<div align="center">
+  <img src="assets/logo.webp" alt="Long-Insight logo" width="360" />
 
-# Long-Insight
+  **Interactive analysis and visualization platform for long-context agent trajectories.**
 
-**Interactive analysis and visualization platform for long-context agent trajectories.**
+  <a href="https://geyuyao.com/long-insight/"><img src="https://img.shields.io/badge/🌐_Website-Long--Insight-blue" /></a>&nbsp;
+  <a href="https://geyuyao.com/project/long-insight/"><img src="https://img.shields.io/badge/📝_Blog-Project_Page-red" /></a>&nbsp;
+  <a href="https://github.com/YuyaoGe/Long_Insight#quick-start"><img src="https://img.shields.io/badge/🚀_Quick_Start-Guide-2ea44f" /></a>
+
+</div>
 
 Long-Insight is designed for **ultra-long agent trajectories** — the kind produced by frontier coding agents solving real-world software engineering tasks. These trajectories routinely span **400+ turns** and exceed **1M tokens**, making manual inspection practically impossible. Long-Insight decomposes these massive trajectories into structured, hierarchical step DAGs, scores their quality, and renders them as interactive visualizations.
 
